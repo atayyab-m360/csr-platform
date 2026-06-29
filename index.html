@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSR Training Platform — CORE AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1A2B6B;--periwinkle:#6B7FD4;--gold:#F59E0B;
+  --light:#F0F2FA;--border:#E5E7F5;--white:#FFFFFF;
+  --dark:#111827;--gray:#6B7280;--green:#10B981;--red:#EF4444;--footer:#111111;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--light);color:var(--dark);min-height:100vh}
+
+/* LOGIN */
+#login-screen{min-height:100vh;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;padding:24px}
+.login-logo{text-align:center}
+.login-logo img{height:42px;display:block;margin:0 auto 10px}
+.login-logo .lsub{font-size:11px;font-weight:700;color:#4B5563;text-transform:uppercase;letter-spacing:.12em}
+.login-card{background:#0D0D0D;border:1px solid #1F2937;border-radius:14px;padding:32px 28px;width:100%;max-width:360px}
+.login-card h2{font-size:18px;font-weight:800;color:#fff;margin-bottom:4px}
+.login-card .lsub2{font-size:13px;color:#4B5563;margin-bottom:24px}
+.field-label{display:block;font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.login-card input{width:100%;background:#111827;border:1px solid #1F2937;border-radius:8px;padding:11px 14px;color:#fff;font-family:inherit;font-size:14px;margin-bottom:14px;outline:none;transition:border-color .2s}
+.login-card input:focus{border-color:var(--periwinkle)}
+.role-row{display:flex;gap:8px;margin-bottom:22px}
+.role-pill{flex:1;padding:9px;border-radius:8px;border:1px solid #1F2937;background:#111827;color:#6B7280;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center}
+.role-pill.active{border-color:var(--periwinkle);background:rgba(107,127,212,.12);color:var(--periwinkle)}
+.btn-login{width:100%;padding:13px;border-radius:8px;border:none;background:var(--navy);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:background .2s}
+.btn-login:hover{background:var(--periwinkle)}
+.login-err{color:var(--red);font-size:12px;text-align:center;margin-top:10px;display:none}
+
+/* PLATFORM */
+#platform{display:none;flex-direction:column;min-height:100vh}
+.topbar{background:#000;padding:0 24px;height:54px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1A1A1A;position:sticky;top:0;z-index:200}
+.topbar img{height:26px}
+.tdivider{width:1px;height:18px;background:#1F2937}
+.plat-label{font-size:11px;font-weight:700;color:#4B5563;text-transform:uppercase;letter-spacing:.1em}
+.user-chip{margin-left:auto;display:flex;align-items:center;gap:8px}
+.u-avatar{width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
+.u-name{font-size:12px;color:#6B7280}
+.role-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.06em}
+.role-tag.csr{background:rgba(107,127,212,.15);color:var(--periwinkle)}
+.role-tag.owner{background:rgba(245,158,11,.15);color:var(--gold)}
+.logout-btn{background:none;border:none;color:#374151;font-size:11px;cursor:pointer;font-family:inherit;padding:4px 8px;border-radius:5px}
+.logout-btn:hover{color:var(--red)}
+
+/* TAB NAV */
+.tab-nav{background:var(--white);border-bottom:1px solid var(--border);display:flex;padding:0 24px;overflow-x:auto}
+.tab-btn{padding:14px 18px;border:none;background:none;font-family:inherit;font-size:13px;font-weight:500;color:var(--gray);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.tab-btn:hover{color:var(--dark)}
+.tab-btn.active{color:var(--navy);border-bottom-color:var(--navy);font-weight:700}
+.tab-badge{background:var(--light);color:var(--gray);font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
+.tab-btn.active .tab-badge{background:rgba(26,43,107,.1);color:var(--navy)}
+.live-badge{background:var(--red);color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:10px;text-transform:uppercase;letter-spacing:.05em;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* SCREENS */
+.screen{display:none}
+.screen.active{display:block}
+.content{padding:28px 24px;max-width:860px}
+
+/* MODULE HERO */
+.module-hero{background:linear-gradient(135deg,var(--navy) 0%,#0D1A45 100%);border-radius:12px;padding:28px;margin-bottom:20px}
+.module-hero .eyebrow{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--gold);margin-bottom:6px}
+.module-hero h1{font-size:22px;font-weight:800;color:#fff;margin-bottom:6px}
+.module-hero p{font-size:13px;color:rgba(255,255,255,.55);line-height:1.6;margin-bottom:16px}
+.module-meta{display:flex;gap:16px;flex-wrap:wrap}
+.meta-chip{font-size:12px;color:rgba(255,255,255,.5)}
+.meta-chip strong{color:rgba(255,255,255,.85)}
+
+/* NASIR BAR */
+.nasir-bar{background:var(--white);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.nasir-bar .nbicon{font-size:24px}
+.nasir-bar .nbtext{font-size:13px;color:var(--dark)}
+.nasir-bar .nbtext strong{color:var(--navy)}
+.nasir-bar .nbcreds{font-size:11px;color:var(--gray);margin-top:2px}
+
+/* LESSON LIST */
+.lesson-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.lesson-row{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s}
+.lesson-row:hover{border-color:var(--periwinkle)}
+.lesson-row.active-l{border-color:var(--navy)}
+.l-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.l-num.done{background:var(--green);color:#fff}
+.l-num.current{background:var(--navy);color:#fff}
+.l-num.upcoming{background:var(--light);color:var(--gray)}
+.l-info{flex:1}
+.l-title{font-size:14px;font-weight:600;color:var(--dark)}
+.l-desc{font-size:12px;color:var(--gray);margin-top:1px}
+.l-dur{font-size:12px;color:var(--gray);white-space:nowrap}
+.btn-sm{padding:7px 15px;border-radius:7px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{background:var(--periwinkle)}
+.btn-ghost{background:var(--light);color:var(--gray);cursor:default}
+
+/* LESSON VIEWER */
+.lesson-viewer{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;display:none}
+.lv-header{background:var(--navy);padding:16px 20px;display:flex;align-items:flex-start;gap:10px}
+.lv-step{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em}
+.lv-title{font-size:16px;font-weight:700;color:#fff;margin-top:2px}
+.lv-back{margin-left:auto;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.6);border-radius:6px;padding:6px 12px;font-family:inherit;font-size:11px;cursor:pointer;white-space:nowrap}
+.lv-body{padding:24px}
+.lv-body h3{font-size:15px;font-weight:700;color:var(--dark);margin:18px 0 8px}
+.lv-body h3:first-child{margin-top:0}
+.lv-body p{font-size:14px;color:#374151;line-height:1.7;margin-bottom:10px}
+.lv-body ul{margin:8px 0 14px 18px}
+.lv-body ul li{font-size:14px;color:#374151;line-height:1.65;margin-bottom:5px}
+.callout{background:var(--light);border-left:3px solid var(--periwinkle);border-radius:0 8px 8px 0;padding:12px 14px;margin:12px 0;font-size:13px;color:var(--dark);line-height:1.6}
+.callout.gold{border-left-color:var(--gold);background:#FFFBEB}
+.callout.green{border-left-color:var(--green);background:#F0FDF4}
+.key-term{display:inline-block;background:rgba(26,43,107,.07);color:var(--navy);font-weight:600;padding:1px 6px;border-radius:4px;font-size:13px}
+.lv-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--border);background:var(--light)}
+.btn-lnav{padding:9px 18px;border-radius:7px;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-prev-l{background:var(--white);border:1px solid var(--border);color:var(--dark)}
+.btn-prev-l:hover{border-color:var(--navy)}
+.btn-next-l{background:var(--navy);color:#fff}
+.btn-next-l:hover{background:var(--periwinkle)}
+.l-dots{display:flex;gap:5px}
+.l-dot{width:7px;height:7px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .2s}
+.l-dot.active{background:var(--navy);width:20px;border-radius:4px}
+.l-dot.done{background:var(--green)}
+
+/* QUIZ */
+.quiz-intro-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:32px;text-align:center}
+.quiz-intro-card .qi-icon{font-size:36px;margin-bottom:10px}
+.quiz-intro-card h2{font-size:20px;font-weight:800;margin-bottom:6px}
+.quiz-intro-card p{font-size:14px;color:var(--gray);max-width:420px;margin:0 auto 20px;line-height:1.6}
+.quiz-rules{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:22px}
+.qrule{background:var(--light);border-radius:8px;padding:9px 14px;font-size:13px;font-weight:500}
+.qrule strong{color:var(--navy)}
+.btn-start-quiz{padding:13px 32px;border-radius:9px;border:none;background:var(--navy);color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
+.btn-start-quiz:hover{background:var(--periwinkle)}
+.quiz-active{display:none}
+.q-header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.q-count{font-size:12px;font-weight:700;color:var(--gray);white-space:nowrap}
+.q-bar{flex:1;height:5px;background:var(--border);border-radius:99px;overflow:hidden}
+.q-bar .fill{height:100%;background:var(--navy);border-radius:99px;transition:width .3s}
+.q-score-lbl{font-size:12px;font-weight:700;color:var(--navy);white-space:nowrap}
+.question-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:14px}
+.q-text{font-size:15px;font-weight:700;color:var(--dark);margin-bottom:18px;line-height:1.5}
+.ans-opts{display:flex;flex-direction:column;gap:9px}
+.ans-btn{padding:12px 16px;border-radius:9px;border:1px solid var(--border);background:var(--white);font-family:inherit;font-size:14px;color:var(--dark);cursor:pointer;text-align:left;transition:all .15s;display:flex;align-items:center;gap:10px}
+.ans-btn:hover:not(:disabled){border-color:var(--navy);background:var(--light)}
+.ans-btn.correct{border-color:var(--green);background:rgba(16,185,129,.08);color:#065F46;font-weight:600}
+.ans-btn.wrong{border-color:var(--red);background:rgba(239,68,68,.06);color:#991B1B}
+.ans-letter{width:24px;height:24px;border-radius:6px;background:var(--light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--gray);flex-shrink:0}
+.ans-btn.correct .ans-letter{background:var(--green);color:#fff}
+.ans-btn.wrong .ans-letter{background:var(--red);color:#fff}
+.fb-box{padding:12px 14px;border-radius:8px;font-size:13px;line-height:1.6;margin-bottom:12px;display:none}
+.fb-box.correct{background:rgba(16,185,129,.1);color:#065F46;border:1px solid rgba(16,185,129,.2)}
+.fb-box.wrong{background:rgba(239,68,68,.08);color:#991B1B;border:1px solid rgba(239,68,68,.15)}
+.btn-nextq{width:100%;padding:12px;border-radius:9px;border:none;background:var(--navy);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:none;transition:background .2s}
+.btn-nextq:hover{background:var(--periwinkle)}
+.quiz-results{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:36px 28px;text-align:center;display:none}
+.result-ring{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;margin:0 auto 14px}
+.result-ring.pass{background:rgba(16,185,129,.1);color:var(--green);border:3px solid var(--green)}
+.result-ring.fail{background:rgba(239,68,68,.08);color:var(--red);border:3px solid var(--red)}
+.quiz-results h2{font-size:20px;font-weight:800;margin-bottom:6px}
+.r-msg{font-size:13px;color:var(--gray);margin-bottom:20px;line-height:1.6}
+.r-stats{display:flex;gap:20px;justify-content:center;margin-bottom:22px}
+.r-stat .val{font-size:22px;font-weight:800;color:var(--dark)}
+.r-stat .lbl{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.07em}
+.cert-prev-block{background:linear-gradient(135deg,var(--navy),#0D1A45);border-radius:10px;padding:20px;margin:0 auto 20px;max-width:380px}
+.cert-prev-block .cpl{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px}
+.cert-prev-block .cpt{font-size:16px;font-weight:800;color:#fff}
+.cert-prev-block .cpn{font-size:12px;color:rgba(255,255,255,.55);margin-top:4px;margin-bottom:12px}
+.cert-prev-block .cps{font-size:11px;color:rgba(255,255,255,.4);padding-top:12px;border-top:1px solid rgba(255,255,255,.1)}
+.btn-cert{padding:12px 26px;border-radius:8px;border:none;background:var(--gold);color:#000;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-right:8px}
+.btn-retry{padding:12px 26px;border-radius:8px;border:1px solid var(--border);background:var(--white);color:var(--dark);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer}
+
+/* AI ASSISTANT TAB */
+.ai-header-bar{background:linear-gradient(135deg,var(--navy),#0D1A45);border-radius:12px;padding:22px 24px;margin-bottom:18px;display:flex;align-items:center;gap:14px}
+.ai-icon-wrap{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ai-header-bar h2{font-size:16px;font-weight:700;color:#fff;margin-bottom:3px}
+.ai-header-bar p{font-size:12px;color:rgba(255,255,255,.5)}
+.ai-live-pill{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:800;padding:4px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.08em;animation:pulse 2s infinite;white-space:nowrap}
+
+.quick-chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.qchip{padding:7px 12px;border-radius:20px;border:1px solid var(--border);background:var(--white);font-family:inherit;font-size:12px;color:var(--dark);cursor:pointer;transition:all .15s}
+.qchip:hover{border-color:var(--navy);color:var(--navy);background:var(--light)}
+
+.chat-box{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.chat-msgs{min-height:360px;max-height:460px;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
+.mwrap{display:flex;flex-direction:column;gap:3px}
+.mwrap.user{align-items:flex-end}
+.mwrap.ai{align-items:flex-start}
+.mbubble{max-width:85%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6}
+.mbubble.user{background:var(--navy);color:#fff;border-bottom-right-radius:3px}
+.mbubble.ai{background:var(--light);color:var(--dark);border-bottom-left-radius:3px}
+.mmeta{font-size:10px;color:var(--gray);padding:0 3px}
+.typing-ind{display:flex;gap:4px;align-items:center;padding:10px 14px;background:var(--light);border-radius:12px;border-bottom-left-radius:3px;width:fit-content}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--gray);animation:bounce 1.2s infinite}
+.tdot:nth-child(2){animation-delay:.2s}.tdot:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,80%,100%{transform:scale(.8);opacity:.5}40%{transform:scale(1.1);opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.chat-input-row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border);background:#FAFBFF}
+.chat-input-row input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px;background:var(--white);outline:none;transition:border-color .2s}
+.chat-input-row input:focus{border-color:var(--navy)}
+.send-btn{padding:10px 18px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:background .2s;white-space:nowrap}
+.send-btn:hover{background:var(--periwinkle)}
+.send-btn:disabled{background:var(--border);color:var(--gray);cursor:not-allowed}
+
+.faq-section{margin-top:24px}
+.faq-section h3{font-size:14px;font-weight:700;color:var(--dark);margin-bottom:12px}
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.faq-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .15s}
+.faq-card:hover{border-color:var(--periwinkle);box-shadow:0 2px 10px rgba(107,127,212,.1)}
+.faq-card .fcat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--periwinkle);margin-bottom:5px}
+.faq-card .fq{font-size:13px;font-weight:600;color:var(--dark)}
+
+/* AGENCY DASHBOARD */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px}
+.stat-card .slbl{font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+.stat-card .sval{font-size:26px;font-weight:800;color:var(--dark)}
+.stat-card .ssub{font-size:12px;color:var(--gray);margin-top:2px}
+.section-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px}
+.section-card h3{font-size:14px;font-weight:700;color:var(--dark);margin-bottom:14px}
+.trainee-table{width:100%;border-collapse:collapse}
+.trainee-table th{text-align:left;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gray);border-bottom:1px solid var(--border)}
+.trainee-table td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border);color:var(--dark)}
+.trainee-table tr:last-child td{border-bottom:none}
+.pmini{width:80px;height:4px;background:var(--border);border-radius:99px;overflow:hidden}
+.pmini .fill{height:100%;background:var(--navy);border-radius:99px}
+.chip{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px}
+.chip.pass{background:rgba(16,185,129,.1);color:var(--green)}
+.chip.prog{background:rgba(245,158,11,.12);color:var(--gold)}
+.chip.new{background:var(--light);color:var(--gray)}
+
+/* CERT MODAL */
+#cert-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;align-items:center;justify-content:center;padding:20px}
+#cert-modal.open{display:flex}
+.cert-doc{background:#fff;border-radius:14px;max-width:560px;width:100%;padding:40px 32px;text-align:center;position:relative}
+.cert-doc .cclose{position:absolute;top:14px;right:14px;background:var(--light);border:none;border-radius:6px;padding:6px 11px;cursor:pointer;font-size:12px;color:var(--gray);font-family:inherit}
+.cert-doc .cbadge{font-size:42px;margin-bottom:6px}
+.cert-doc .cissuer{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.14em;margin-bottom:3px}
+.cert-doc .csub{font-size:13px;color:var(--gray);margin-bottom:16px}
+.cert-doc hr{border:none;border-top:2px solid var(--gold);width:50px;margin:0 auto 16px}
+.cert-doc .cto{font-size:12px;color:var(--gray);margin-bottom:3px}
+.cert-doc .cname{font-size:28px;font-weight:800;color:var(--dark);font-style:italic;margin-bottom:4px}
+.cert-doc .cmod-lbl{font-size:12px;color:var(--gray);margin-bottom:4px}
+.cert-doc .cmod{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:18px}
+.cert-meta-row{display:flex;justify-content:center;gap:24px;margin-bottom:20px}
+.cmeta-item .cv{font-size:15px;font-weight:700;color:var(--dark)}
+.cmeta-item .cl{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.07em}
+.sig-row{display:flex;justify-content:center;gap:36px;padding-top:16px;border-top:1px solid var(--border);margin-bottom:20px}
+.sig{text-align:center}
+.sig .sigline{width:120px;height:1px;background:var(--dark);margin:0 auto 5px}
+.sig .signame{font-size:12px;font-weight:700;color:var(--dark)}
+.sig .sigtitle{font-size:10px;color:var(--gray)}
+.btn-dl{padding:11px 24px;border-radius:8px;border:none;background:var(--navy);color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.cert-doc .cpow{font-size:10px;color:#D1D5DB;margin-top:14px}
+
+footer{background:var(--footer);color:#374151;text-align:center;padding:13px 20px;font-size:11px;letter-spacing:.03em;margin-top:auto}
+footer img{height:15px;vertical-align:middle;margin-right:6px;opacity:.4}
+
+@media(max-width:600px){.stats-row{grid-template-columns:1fr 1fr}.faq-grid{grid-template-columns:1fr}.sig-row{gap:16px}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-logo">
+    <img src="https://i.imgur.com/LpBodPi.png" alt="CORE AI">
+    <div class="lsub">CSR Training Platform</div>
+  </div>
+  <div class="login-card">
+    <h2>Sign In</h2>
+    <div class="lsub2">Enter your agency credentials</div>
+    <label class="field-label">Email</label>
+    <input type="email" id="login-email" placeholder="you@agencyname.com">
+    <label class="field-label">Password</label>
+    <input type="password" id="login-pass" placeholder="••••••••">
+    <label class="field-label" style="margin-bottom:8px">I am a</label>
+    <div class="role-row">
+      <button class="role-pill active" onclick="setRole(this,'csr')">CSR Trainee</button>
+      <button class="role-pill" onclick="setRole(this,'owner')">Agency Owner</button>
+    </div>
+    <button class="btn-login" onclick="doLogin()">Sign In</button>
+    <div class="login-err" id="login-err">Please enter your email and password.</div>
+  </div>
+</div>
+
+<!-- PLATFORM -->
+<div id="platform">
+  <div class="topbar">
+    <img src="https://i.imgur.com/LpBodPi.png" alt="CORE AI">
+    <div class="tdivider"></div>
+    <span class="plat-label">CSR Training Platform</span>
+    <div class="user-chip">
+      <div class="u-avatar" id="u-av">JD</div>
+      <span class="u-name" id="u-nm">Jane Doe</span>
+      <span class="role-tag csr" id="u-rtag">CSR</span>
+      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="tab-btn active" id="tab-training" onclick="showTab('training',this)">
+      📚 Training Module <span class="tab-badge">Module 1 of 8</span>
+    </button>
+    <button class="tab-btn" id="tab-ai" onclick="showTab('ai',this)">
+      🤖 AI Assistant <span class="live-badge">● Live</span>
+    </button>
+    <button class="tab-btn" onclick="showTab('agency',this)" id="tab-agency" style="display:none">
+      👥 Agency Dashboard
+    </button>
+  </div>
+
+  <!-- TRAINING TAB -->
+  <div id="screen-training" class="screen">
+    <div class="content">
+      <div id="training-overview">
+        <div class="module-hero">
+          <div class="eyebrow">Module 1 of 8</div>
+          <h1>Insurance Fundamentals</h1>
+          <p>Build the foundation every CSR needs before picking up the phone. Covers what insurance is, how policies work, and the role you play in the client relationship.</p>
+          <div class="module-meta">
+            <div class="meta-chip">⏱ <strong>~45 min</strong></div>
+            <div class="meta-chip">📖 <strong>6 Lessons</strong></div>
+            <div class="meta-chip">✏️ <strong>10-question quiz</strong></div>
+            <div class="meta-chip">🎓 <strong>Certificate on completion</strong></div>
+          </div>
+        </div>
+
+        <div class="nasir-bar">
+          <div class="nbicon">🏅</div>
+          <div class="nbtext">
+            <strong>Curriculum approved by Nasir Mogul, CLF, LUTCF, MDRT</strong>
+            <div class="nbcreds">34 years in independent insurance · MDRT member · Top 1% of financial professionals worldwide</div>
+          </div>
+        </div>
+
+        <h3 style="font-size:14px;font-weight:700;color:var(--dark);margin-bottom:10px">Lessons in This Module</h3>
+        <div class="lesson-list" id="lesson-list"></div>
+
+        <div id="quiz-section">
+          <div id="quiz-intro-panel">
+            <div class="quiz-intro-card">
+              <div class="qi-icon">✏️</div>
+              <h2>Module 1 Quiz</h2>
+              <p>You need <strong>80% or higher</strong> to pass and earn your certificate. Unlimited retakes.</p>
+              <div class="quiz-rules">
+                <div class="qrule"><strong>10</strong> questions</div>
+                <div class="qrule"><strong>80%</strong> to pass</div>
+                <div class="qrule"><strong>Unlimited</strong> retakes</div>
+                <div class="qrule">🎓 Certificate on pass</div>
+              </div>
+              <button class="btn-start-quiz" onclick="startQuiz()">Begin Quiz</button>
+            </div>
+          </div>
+
+          <div class="quiz-active" id="quiz-active">
+            <div class="q-header">
+              <span class="q-count" id="q-count">Question 1 of 10</span>
+              <div class="q-bar"><div class="fill" id="q-bar-fill" style="width:10%"></div></div>
+              <span class="q-score-lbl" id="q-score-lbl">Score: 0</span>
+            </div>
+            <div class="question-card">
+              <div class="q-text" id="q-text"></div>
+              <div class="ans-opts" id="ans-opts"></div>
+            </div>
+            <div class="fb-box" id="fb-box"></div>
+            <button class="btn-nextq" id="btn-nextq" onclick="nextQ()">Next Question →</button>
+          </div>
+
+          <div class="quiz-results" id="quiz-results">
+            <div class="result-ring" id="result-ring"></div>
+            <h2 id="result-title"></h2>
+            <div class="r-msg" id="r-msg"></div>
+            <div class="r-stats">
+              <div class="r-stat"><div class="val" id="r-score"></div><div class="lbl">Score</div></div>
+              <div class="r-stat"><div class="val" id="r-correct"></div><div class="lbl">Correct</div></div>
+              <div class="r-stat"><div class="val" id="r-wrong"></div><div class="lbl">Incorrect</div></div>
+            </div>
+            <div class="cert-prev-block" id="cert-prev-block" style="display:none">
+              <div class="cpl">🏆 Certificate Earned</div>
+              <div class="cpt">Insurance Fundamentals</div>
+              <div class="cpn" id="cert-prev-name"></div>
+              <div class="cps">🏅 Certified by Nasir Mogul, CLF, LUTCF, MDRT</div>
+            </div>
+            <button class="btn-cert" id="btn-view-cert" onclick="openCert()" style="display:none">🎓 View Certificate</button>
+            <button class="btn-retry" onclick="retryQuiz()">Retake Quiz</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="lesson-viewer" id="lesson-viewer">
+        <div class="lv-header">
+          <div>
+            <div class="lv-step" id="lv-step">Lesson 1 of 6</div>
+            <div class="lv-title" id="lv-title"></div>
+          </div>
+          <button class="lv-back" onclick="closeLesson()">← Back to Overview</button>
+        </div>
+        <div class="lv-body"><div id="lv-content"></div></div>
+        <div class="lv-nav">
+          <button class="btn-lnav btn-prev-l" id="btn-prev-l" onclick="changeLesson(-1)">← Previous</button>
+          <div class="l-dots" id="l-dots"></div>
+          <button class="btn-lnav btn-next-l" id="btn-next-l" onclick="changeLesson(1)">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI ASSISTANT TAB -->
+  <div id="screen-ai" class="screen">
+    <div class="content">
+      <div class="ai-header-bar">
+        <div class="ai-icon-wrap">🤖</div>
+        <div>
+          <h2>AI Insurance Assistant</h2>
+          <p>Ask anything — get a plain-language answer you can use right now on a live call. No memorization required.</p>
+        </div>
+        <div class="ai-live-pill">● Live</div>
+      </div>
+
+      <div class="quick-chips">
+        <button class="qchip" onclick="quickAsk('What is a binder and when do I issue one?')">What is a binder?</button>
+        <button class="qchip" onclick="quickAsk('Client is calling to file a claim for the first time — what do I say?')">Client filing first claim</button>
+        <button class="qchip" onclick="quickAsk('What is the difference between a premium and a deductible?')">Premium vs deductible</button>
+        <button class="qchip" onclick="quickAsk('Client is upset about a premium increase — how do I handle this call?')">Upset about premium increase</button>
+        <button class="qchip" onclick="quickAsk('How do I add a vehicle to an existing auto policy?')">Add vehicle to policy</button>
+        <button class="qchip" onclick="quickAsk('Client wants to cancel their policy — what do I say?')">Client wants to cancel</button>
+      </div>
+
+      <div class="chat-box">
+        <div class="chat-msgs" id="ai-msgs">
+          <div class="mwrap ai">
+            <div class="mbubble ai">Hi — I'm your AI insurance assistant. Ask me anything. I'll give you a plain-language answer you can use right now, whether you're on a live call or looking something up between calls. No question is too basic.</div>
+            <div class="mmeta">CORE AI Assistant</div>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="ai-input" placeholder="Type your question, or what the client just asked you…" onkeydown="if(event.key==='Enter')sendAI()">
+          <button class="send-btn" id="ai-send" onclick="sendAI()">Ask →</button>
+        </div>
+      </div>
+
+      <div class="faq-section">
+        <h3>Common Questions by Topic</h3>
+        <div class="faq-grid">
+          <div class="faq-card" onclick="quickAsk('Walk me through the ACORD 125 form step by step')">
+            <div class="fcat">ACORD Forms</div>
+            <div class="fq">Walk me through the ACORD 125</div>
+          </div>
+          <div class="faq-card" onclick="quickAsk('What is an endorsement and how do I process one?')">
+            <div class="fcat">Policy Changes</div>
+            <div class="fq">What is an endorsement and how do I process one?</div>
+          </div>
+          <div class="faq-card" onclick="quickAsk('What information do I need to issue a certificate of insurance?')">
+            <div class="fcat">Certificates</div>
+            <div class="fq">What do I need to issue a COI?</div>
+          </div>
+          <div class="faq-card" onclick="quickAsk('What is the difference between actual cash value and replacement cost?')">
+            <div class="fcat">Coverage</div>
+            <div class="fq">Actual cash value vs replacement cost</div>
+          </div>
+          <div class="faq-card" onclick="quickAsk('What should I never promise a client on a claims call?')">
+            <div class="fcat">Claims</div>
+            <div class="fq">What should I never promise on a claims call?</div>
+          </div>
+          <div class="faq-card" onclick="quickAsk('How do I explain a non-renewal to a client?')">
+            <div class="fcat">Difficult Conversations</div>
+            <div class="fq">How do I explain a non-renewal?</div>
+          </div>
+          <div class="faq-card" onclick="quickAsk('What is workers compensation and who is required to have it?')">
+            <div class="fcat">Commercial Lines</div>
+            <div class="fq">What is workers comp and who needs it?</div>
+          </div>
+          <div class="faq-card" onclick="quickAsk('A client is asking if their homeowners policy covers flood damage — what do I tell them?')">
+            <div class="fcat">Coverage Questions</div>
+            <div class="fq">Does homeowners cover flood damage?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGENCY DASHBOARD (owner only) -->
+  <div id="screen-agency" class="screen">
+    <div class="content">
+
+      <!-- Owner-only welcome banner -->
+      <div style="background:linear-gradient(135deg,#0D1A45,#1A2B6B);border-radius:12px;padding:24px 28px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px">Agency Owner Portal</div>
+          <div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:4px">Welcome, Nasir 👋</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.5)">Mogul Insurance Group · Agency Plan · 4 active trainees</div>
+        </div>
+        <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:16px 20px;text-align:center;flex-shrink:0">
+          <div style="font-size:26px;font-weight:900;color:var(--gold)">2</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Certs Issued</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="slbl">Active Trainees</div>
+          <div class="sval">4</div>
+          <div class="ssub">Mogul Insurance Group</div>
+        </div>
+        <div class="stat-card">
+          <div class="slbl">Certs Earned</div>
+          <div class="sval">2</div>
+          <div class="ssub">Module 1 completions</div>
+        </div>
+        <div class="stat-card">
+          <div class="slbl">Plan</div>
+          <div class="sval" style="font-size:18px">Agency</div>
+          <div class="ssub">Unlimited trainees · $299/mo</div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h3>Trainee Progress — Module 1</h3>
+        <table class="trainee-table">
+          <thead>
+            <tr><th>Name</th><th>Progress</th><th>Quiz Score</th><th>Status</th><th>Last Active</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Jane Doe</strong></td>
+              <td><div class="pmini"><div class="fill" style="width:50%"></div></div></td>
+              <td>—</td>
+              <td><span class="chip prog">In Progress</span></td>
+              <td>Today</td>
+            </tr>
+            <tr>
+              <td><strong>Marcus Webb</strong></td>
+              <td><div class="pmini"><div class="fill" style="width:100%"></div></div></td>
+              <td><span style="color:var(--green);font-weight:700">91%</span></td>
+              <td><span class="chip pass">Certified</span></td>
+              <td>Jun 26</td>
+            </tr>
+            <tr>
+              <td><strong>Priya Sharma</strong></td>
+              <td><div class="pmini"><div class="fill" style="width:100%"></div></div></td>
+              <td><span style="color:var(--green);font-weight:700">85%</span></td>
+              <td><span class="chip pass">Certified</span></td>
+              <td>Jun 25</td>
+            </tr>
+            <tr>
+              <td><strong>Derek Collins</strong></td>
+              <td><div class="pmini"><div class="fill" style="width:8%"></div></div></td>
+              <td>—</td>
+              <td><span class="chip new">Just Started</span></td>
+              <td>Today</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- AI QUICK SEARCH (preview of what CSRs see) -->
+      <div class="section-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <h3 style="margin-bottom:0">🤖 CSR AI Assistant — Live Preview</h3>
+          <span style="font-size:10px;font-weight:700;background:rgba(239,68,68,.1);color:var(--red);padding:3px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.07em;animation:pulse 2s infinite">● Live</span>
+        </div>
+        <p style="font-size:12px;color:var(--gray);margin-bottom:14px">This is what your CSRs use on live calls. Ask anything — same tool they have access to.</p>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input type="text" id="owner-ai-input" placeholder="Type a question your CSR might get on a call…" onkeydown="if(event.key==='Enter')ownerAsk()" style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px;background:var(--white);outline:none">
+          <button onclick="ownerAsk()" id="owner-ai-btn" style="padding:10px 18px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">Ask →</button>
+        </div>
+        <div id="owner-ai-result" style="display:none;background:var(--light);border-radius:9px;padding:14px 16px;font-size:13px;color:var(--dark);line-height:1.65;border-left:3px solid var(--navy)"></div>
+        <div id="owner-ai-loading" style="display:none;padding:12px 0;text-align:center">
+          <div style="width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block"></div>
+          <span style="font-size:12px;color:var(--gray);margin-left:8px">Asking the AI…</span>
+        </div>
+      </div>
+
+      <!-- TRENDING FAQs - dynamic via Claude web search -->
+      <div class="section-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <h3 style="margin-bottom:0">🔥 Trending — What Clients Are Asking Right Now</h3>
+          <button onclick="loadTrendingFAQs()" id="faq-refresh-btn" style="background:none;border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:11px;font-weight:600;color:var(--gray);cursor:pointer;font-family:inherit">↺ Refresh</button>
+        </div>
+        <p style="font-size:12px;color:var(--gray);margin-bottom:14px">Live-sourced from the insurance industry. Refreshes every time you load the dashboard. Tap any card to see the AI answer.</p>
+        <div id="faq-loading" style="padding:24px;text-align:center">
+          <div style="width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;margin-bottom:8px"></div>
+          <div style="font-size:12px;color:var(--gray)">Searching the web for trending insurance questions…</div>
+        </div>
+        <div id="faq-error" style="display:none;padding:16px;text-align:center;font-size:13px;color:var(--gray)">
+          Could not load trending questions. <button onclick="loadTrendingFAQs()" style="background:none;border:none;color:var(--navy);font-weight:700;cursor:pointer;font-family:inherit">Try again →</button>
+        </div>
+        <div id="faq-grid" style="display:none;grid-template-columns:1fr 1fr;gap:8px"></div>
+      </div>
+
+      <div class="section-card">
+        <h3>Subscription</h3>
+        <div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--light);border-radius:9px;">
+          <div style="font-size:26px">📋</div>
+          <div>
+            <div style="font-size:14px;font-weight:700">Agency Plan — Unlimited Trainees</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:2px">$299/month · Billed monthly · Cancel anytime</div>
+            <div style="font-size:12px;color:var(--gray)">vs. Total CSR: $2,000 per person, per year</div>
+          </div>
+          <div style="margin-left:auto;font-size:12px;color:var(--green);font-weight:700">● Active</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <img src="https://i.imgur.com/LpBodPi.png" alt="CORE AI">
+    CORE AI | Core Response AI | Powerful Business Solutions | A Tayyab Group, Inc. Company · coreresponsegroup.com
+  </footer>
+</div>
+
+<!-- CERT MODAL -->
+<div id="cert-modal">
+  <div class="cert-doc">
+    <button class="cclose" onclick="closeCert()">✕ Close</button>
+    <div class="cbadge">🎓</div>
+    <div class="cissuer">CORE AI · Core Response AI</div>
+    <div class="csub">Certificate of Completion</div>
+    <hr>
+    <div class="cto">This certifies that</div>
+    <div class="cname" id="cert-name">Jane Doe</div>
+    <div class="cmod-lbl">has successfully completed</div>
+    <div class="cmod">Module 1 — Insurance Fundamentals</div>
+    <div class="cert-meta-row">
+      <div class="cmeta-item"><div class="cv" id="cert-score-v">—</div><div class="cl">Quiz Score</div></div>
+      <div class="cmeta-item"><div class="cv" id="cert-date-v">—</div><div class="cl">Date Earned</div></div>
+      <div class="cmeta-item"><div class="cv">Module 1</div><div class="cl">of 8 Complete</div></div>
+    </div>
+    <div class="sig-row">
+      <div class="sig">
+        <div class="sigline"></div>
+        <div class="signame">Nasir Mogul</div>
+        <div class="sigtitle">CLF, LUTCF, MDRT · Curriculum Director</div>
+      </div>
+      <div class="sig">
+        <div class="sigline"></div>
+        <div class="signame">Abdul Tayyab</div>
+        <div class="sigtitle">Founder & CEO · CORE AI</div>
+      </div>
+    </div>
+    <button class="btn-dl" onclick="alert('PDF download available in production build.')">⬇ Download PDF</button>
+    <div class="cpow">Powered by CORE AI · coreresponsegroup.com</div>
+  </div>
+</div>
+
+<script>
+const LESSONS=[
+  {title:"What Is Insurance?",desc:"Risk transfer and why insurance exists",duration:"6 min",content:`<h3>The Core Idea: Transferring Risk</h3><p>Insurance is a contract where an individual or business pays a regular fee — called a <span class="key-term">premium</span> — to an insurance company. In return, the insurer agrees to pay for specific financial losses if they occur.</p><p>At its core, insurance is about <strong>transferring risk</strong>. Instead of one person absorbing a potentially devastating loss alone, that risk is spread across thousands of policyholders.</p><div class="callout"><strong>Simple way to explain to a client:</strong><br>"You pay a small, predictable amount every month so that if something big and unpredictable happens — a car accident, a house fire, a lawsuit — you're not stuck paying for it all yourself."</div><h3>The Three Parties</h3><ul><li><strong>The Insured</strong> — the person or business buying coverage</li><li><strong>The Insurer</strong> — the company taking on the risk</li><li><strong>The Agent/Broker</strong> — the professional connecting them</li></ul><div class="callout green"><strong>Your role as a CSR:</strong> You are often the first voice a client hears. How you explain insurance — clearly, without jargon — directly affects whether they trust your agency.</div>`},
+  {title:"Types of Insurance",desc:"Personal lines, commercial lines, and specialty coverage",duration:"8 min",content:`<h3>Personal Lines</h3><p>Personal lines cover individuals and families.</p><ul><li><strong>Auto Insurance</strong> — vehicle damage, liability, and medical costs</li><li><strong>Homeowners Insurance</strong> — home structure, personal property, and liability</li><li><strong>Renters Insurance</strong> — personal property and liability for renters</li><li><strong>Umbrella Insurance</strong> — extra liability above the limits of other policies</li></ul><h3>Commercial Lines</h3><p>Commercial lines cover businesses. More complex, higher premiums.</p><ul><li><strong>Business Owner's Policy (BOP)</strong> — bundles property and liability for small businesses</li><li><strong>Commercial General Liability (CGL)</strong> — covers liability to third parties</li><li><strong>Workers' Compensation</strong> — covers employees injured on the job</li><li><strong>Professional Liability (E&O)</strong> — covers professionals against claims of negligence</li></ul><div class="callout gold"><strong>CSR tip:</strong> When a client calls about "business insurance," always ask: What type of business? How many employees? Do you have vehicles? These questions help identify which lines apply.</div>`},
+  {title:"How a Policy Works",desc:"Declarations, exclusions, premiums, and policy periods",duration:"7 min",content:`<h3>Key Parts of a Policy</h3><ul><li><strong>Declarations Page (Dec Page)</strong> — the summary. Shows who's insured, what's covered, limits, premium, and dates.</li><li><strong>Insuring Agreement</strong> — the insurer's promise of what they'll pay for.</li><li><strong>Exclusions</strong> — what is NOT covered. Critical. Floods are typically excluded from homeowners policies.</li><li><strong>Conditions</strong> — rules both parties must follow for the policy to stay valid.</li><li><strong>Endorsements</strong> — amendments that add, remove, or change coverage.</li></ul><div class="callout"><strong>Key terms:</strong><br><strong>Premium</strong> — regular payment to keep the policy active<br><strong>Deductible</strong> — what the insured pays before insurance kicks in<br><strong>Coverage Limit</strong> — maximum the insurer will pay<br><strong>Policy Period</strong> — dates coverage is active (typically 6 or 12 months)</div><div class="callout green"><strong>When a client asks "Why did my premium go up?":</strong><br>"Several things can affect your rate. Let me pull up your policy and walk you through exactly what changed."</div>`},
+  {title:"The Agent vs. Broker",desc:"Independent agents, captive agents, and your role",duration:"6 min",content:`<h3>Captive Agents</h3><p>A <span class="key-term">captive agent</span> works exclusively for one company (e.g., State Farm, Allstate). They can only sell that company's products.</p><h3>Independent Agents</h3><p>An <span class="key-term">independent agent</span> works with multiple carriers. They shop the market to find the best fit for each client.</p><div class="callout gold"><strong>How to explain this to a client:</strong><br>"Unlike an agent who works for just one company, we're independent — we can shop your coverage across multiple carriers."</div><h3>The CSR's Position</h3><ul><li>You do NOT give coverage advice — that is the licensed agent's job</li><li>You DO help clients understand existing coverage and navigate processes</li><li>When in doubt, always refer to the agent — it protects you, the agency, and the client</li></ul>`},
+  {title:"The Claims Process",desc:"First notice of loss and your role on a live call",duration:"8 min",content:`<h3>When a Client Calls About a Claim</h3><p>A client filing a claim is usually stressed or confused. Your calm professionalism in the first 60 seconds sets the tone for everything.</p><div class="callout green"><strong>What to say when a client calls to report a claim:</strong><br>"I'm so sorry to hear that happened. I'm going to help you get this started right now. Can I get your name and policy number?"</div><h3>Information to Collect</h3><ul><li>Client's full name and policy number</li><li>Date, time, and location of the incident</li><li>Brief description of what happened</li><li>Any injuries (if auto or liability claim)</li><li>Police report number (if applicable)</li></ul><div class="callout"><strong>Important:</strong> Never promise a client their claim will be covered or a specific amount will be paid. Only the adjuster makes that determination. Say: "We'll get this submitted right away and a claims adjuster will be in touch with you."</div>`},
+  {title:"Professional Standards for CSRs",desc:"Ethics, compliance, and knowing your limits",duration:"6 min",content:`<h3>What You Can Do</h3><ul><li>Explain existing coverage on a policy the client already has</li><li>Process routine changes: address updates, vehicle additions, lienholder changes</li><li>Issue certificates of insurance per agency procedures</li><li>Take first notice of loss and gather claim information</li><li>Answer billing and payment questions</li></ul><h3>What Requires a Licensed Agent</h3><ul><li>Recommending or advising on coverage amounts</li><li>Binding new coverage or policy changes that affect coverage</li><li>Quoting or selling new policies</li><li>Any time a client asks "What do you think I should do?"</li></ul><div class="callout gold"><strong>The golden rule:</strong><br>"That's a great question — let me have our agent give you a quick call today so they can walk you through your options."</div><div class="callout green"><strong>You've completed all 6 lessons.</strong> Scroll down to take the quiz and earn your certificate.</div>`}
+];
+
+const QUIZ=[
+  {q:"What is the primary purpose of insurance?",opts:["To make money for the insurance company","To transfer financial risk from the individual to the insurer","To guarantee no losses will occur","To replace the need for savings"],correct:1,exp:"Insurance transfers financial risk. The insured pays a predictable premium; the insurer absorbs the potentially large, unpredictable loss."},
+  {q:"What is a premium?",opts:["The amount paid out-of-pocket after a claim","The maximum the insurer will pay","The regular payment to keep a policy active","A penalty for filing too many claims"],correct:2,exp:"A premium is the regular payment (monthly, quarterly, or annually) made by the insured to keep the policy active."},
+  {q:"What is a deductible?",opts:["The total annual cost of the policy","The amount the insured pays before insurance coverage kicks in","A discount for good behavior","The agent's commission"],correct:1,exp:"The deductible is what the insured pays first before the insurer contributes. Higher deductibles typically mean lower premiums."},
+  {q:"Which is an example of a commercial line of insurance?",opts:["Homeowners insurance","Personal auto insurance","Workers' compensation","Renters insurance"],correct:2,exp:"Workers' compensation is a commercial line — it covers employees injured on the job and is purchased by businesses."},
+  {q:"What does the Declarations (Dec) Page show?",opts:["What the policy does NOT cover","A summary including the insured's name, coverage limits, premium, and dates","The legal conditions both parties must follow","The carrier's financial rating"],correct:1,exp:"The Dec Page is the summary page — the first thing most clients look at. It shows who's covered, limits, premium, and effective dates."},
+  {q:"An independent agent differs from a captive agent because:",opts:["Independent agents only sell personal lines","Captive agents always charge less","Independent agents work with multiple carriers and can shop coverage","Independent agents don't earn commissions"],correct:2,exp:"Independent agents represent multiple carriers, letting them shop the market. Captive agents work exclusively for one carrier."},
+  {q:"When a client calls to report a claim, what should a CSR NOT do?",opts:["Collect basic information about the incident","Remain calm and empathetic","Promise the claim will be covered","Transfer them to claims if needed"],correct:2,exp:"Only the claims adjuster can determine coverage. Never promise a client that a claim will be paid."},
+  {q:"What is First Notice of Loss (FNOL)?",opts:["A warning sent before policy cancellation","The initial report of a claim to the insurance carrier","A document listing all exclusions","The first invoice sent to a new client"],correct:1,exp:"FNOL is the first step in the claims process — the initial report that a loss has occurred, triggering the carrier to assign an adjuster."},
+  {q:"A client asks if they should increase their liability limits. The correct CSR response is to:",opts:["Recommend the highest limits available","Say their current limits are probably fine","Refer the question to a licensed agent","Look up the state minimum and recommend that"],correct:2,exp:"Coverage recommendations require a licensed agent. Always redirect advice questions to protect yourself, the agency, and the client."},
+  {q:"What is an endorsement on a policy?",opts:["A positive review of the insurer","An amendment that adds, removes, or changes coverage","A certificate sent to a third party","The agent's signature on an application"],correct:1,exp:"An endorsement modifies the base policy — it can add coverage, remove it, or adjust limits and terms."}
+];
+
+// STATE
+let currentRole='csr',currentLesson=0,lessonsCompleted=new Set();
+let quizQ=0,quizScore=0,quizAnswered=false,finalScore=0,quizPassed=false;
+let userName='Jane Doe',aiHistory=[],aiBusy=false;
+
+function setRole(btn,role){document.querySelectorAll('.role-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentRole=role}
+
+function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value.trim();
+  if(!email||!pass){document.getElementById('login-err').style.display='block';return}
+  document.getElementById('login-err').style.display='none';
+  const local=email.split('@')[0];
+  userName=local.split(/[._]/).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+
+  // Hide all screens and deactivate all tabs first
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+
+  if(currentRole==='owner'){
+    // OWNER: name, tag, show agency tab, default to agency dashboard
+    userName='Nasir Mogul';
+    document.getElementById('u-nm').textContent='Nasir Mogul';
+    document.getElementById('u-av').textContent='NM';
+    document.getElementById('u-rtag').textContent='Agency Owner';
+    document.getElementById('u-rtag').className='role-tag owner';
+    // Show all 3 tabs; hide CSR-only training tab label
+    document.getElementById('tab-training').style.display='none';   // owners don't train
+    document.getElementById('tab-agency').style.display='flex';
+    // Default screen = agency dashboard
+    document.getElementById('screen-agency').classList.add('active');
+    setTimeout(loadTrendingFAQs,300);
+    document.getElementById('tab-agency').classList.add('active');
+  } else {
+    // CSR: name, tag, hide agency tab, default to training
+    document.getElementById('u-nm').textContent=userName;
+    document.getElementById('u-av').textContent=userName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    document.getElementById('u-rtag').textContent='CSR Trainee';
+    document.getElementById('u-rtag').className='role-tag csr';
+    document.getElementById('tab-training').style.display='flex';
+    document.getElementById('tab-agency').style.display='none';
+    // Default screen = training
+    document.getElementById('screen-training').classList.add('active');
+    document.getElementById('tab-training').classList.add('active');
+    renderLessonList();
+  }
+
+  document.getElementById('login-screen').style.display='none';
+  const p=document.getElementById('platform');p.style.display='flex';p.style.flexDirection='column';p.style.minHeight='100vh';
+}
+
+function doLogout(){document.getElementById('platform').style.display='none';document.getElementById('login-screen').style.display='flex'}
+
+function showTab(id,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  btn.classList.add('active');
+  // Update AI header label based on role
+  if(id==='ai'){
+    const h2=document.querySelector('.ai-header-bar h2');
+    const p=document.querySelector('.ai-header-bar p');
+    if(currentRole==='owner'){h2.textContent='Agency AI Assistant';p.textContent='Look up coverage questions, review client scripts, or research topics for your team.'}
+    else{h2.textContent='AI Insurance Assistant';p.textContent='Ask anything — get a plain-language answer you can use right now on a live call. No memorization required.'}
+  }
+}
+
+function renderLessonList(){
+  const c=document.getElementById('lesson-list');c.innerHTML='';
+  LESSONS.forEach((l,i)=>{
+    const done=lessonsCompleted.has(i);
+    const div=document.createElement('div');
+    div.className='lesson-row'+(done?'':i===currentLesson?' active-l':'');
+    div.onclick=()=>openLesson(i);
+    div.innerHTML=`<div class="l-num ${done?'done':i===currentLesson?'current':'upcoming'}">${done?'✓':i+1}</div><div class="l-info"><div class="l-title">${l.title}</div><div class="l-desc">${l.desc}</div></div><div class="l-dur">${l.duration}</div><button class="btn-sm ${done?'btn-ghost':'btn-navy'}" onclick="event.stopPropagation();openLesson(${i})">${done?'Review':i===currentLesson?'Continue →':'Start'}</button>`;
+    c.appendChild(div);
+  });
+}
+
+function openLesson(idx){
+  currentLesson=idx;
+  document.getElementById('training-overview').style.display='none';
+  document.getElementById('lesson-viewer').style.display='block';
+  renderLesson(idx);
+}
+
+function closeLesson(){
+  document.getElementById('lesson-viewer').style.display='none';
+  document.getElementById('training-overview').style.display='block';
+  renderLessonList();
+}
+
+function renderLesson(idx){
+  const l=LESSONS[idx];
+  document.getElementById('lv-step').textContent=`Lesson ${idx+1} of ${LESSONS.length}`;
+  document.getElementById('lv-title').textContent=l.title;
+  document.getElementById('lv-content').innerHTML=l.content;
+  document.getElementById('btn-prev-l').disabled=idx===0;
+  document.getElementById('btn-prev-l').style.opacity=idx===0?'0.4':'1';
+  document.getElementById('btn-next-l').textContent=idx===LESSONS.length-1?'Finish & Take Quiz ✓':'Next →';
+  renderDots(idx);
+}
+
+function changeLesson(dir){
+  lessonsCompleted.add(currentLesson);
+  const next=currentLesson+dir;
+  if(next>=LESSONS.length){lessonsCompleted.add(currentLesson);closeLesson();setTimeout(()=>document.getElementById('quiz-section').scrollIntoView({behavior:'smooth'}),100);return}
+  if(next<0){closeLesson();return}
+  currentLesson=next;renderLesson(next);
+}
+
+function renderDots(idx){
+  const c=document.getElementById('l-dots');c.innerHTML='';
+  LESSONS.forEach((_,i)=>{const d=document.createElement('div');d.className='l-dot'+(i===idx?' active':lessonsCompleted.has(i)?' done':'');d.onclick=()=>{currentLesson=i;renderLesson(i)};c.appendChild(d)});
+}
+
+function startQuiz(){
+  quizQ=0;quizScore=0;quizAnswered=false;
+  document.getElementById('quiz-intro-panel').style.display='none';
+  document.getElementById('quiz-results').style.display='none';
+  document.getElementById('quiz-active').style.display='block';
+  renderQ();
+}
+
+function renderQ(){
+  const q=QUIZ[quizQ];
+  document.getElementById('q-count').textContent=`Question ${quizQ+1} of ${QUIZ.length}`;
+  document.getElementById('q-bar-fill').style.width=`${((quizQ+1)/QUIZ.length)*100}%`;
+  document.getElementById('q-score-lbl').textContent=`Score: ${quizScore}`;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('fb-box').style.display='none';
+  document.getElementById('btn-nextq').style.display='none';
+  quizAnswered=false;
+  const letters=['A','B','C','D'];
+  const opts=document.getElementById('ans-opts');opts.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');btn.className='ans-btn';
+    btn.innerHTML=`<div class="ans-letter">${letters[i]}</div>${opt}`;
+    btn.onclick=()=>selectAns(i);opts.appendChild(btn);
+  });
+}
+
+function selectAns(idx){
+  if(quizAnswered)return;quizAnswered=true;
+  const q=QUIZ[quizQ];const btns=document.querySelectorAll('.ans-btn');
+  btns.forEach(b=>b.disabled=true);
+  btns[idx].classList.add(idx===q.correct?'correct':'wrong');
+  if(idx!==q.correct)btns[q.correct].classList.add('correct');
+  if(idx===q.correct)quizScore++;
+  const fb=document.getElementById('fb-box');
+  fb.className='fb-box '+(idx===q.correct?'correct':'wrong');
+  fb.innerHTML=(idx===q.correct?'✓ <strong>Correct!</strong> ':'✗ <strong>Incorrect.</strong> ')+q.exp;
+  fb.style.display='block';
+  const nxt=document.getElementById('btn-nextq');
+  nxt.textContent=quizQ<QUIZ.length-1?'Next Question →':'See Results';
+  nxt.style.display='block';
+  document.getElementById('q-score-lbl').textContent=`Score: ${quizScore}`;
+}
+
+function nextQ(){quizQ++;if(quizQ>=QUIZ.length){showResults();return}renderQ()}
+
+function showResults(){
+  document.getElementById('quiz-active').style.display='none';
+  const pct=Math.round((quizScore/QUIZ.length)*100);
+  finalScore=pct;quizPassed=pct>=80;
+  const ring=document.getElementById('result-ring');
+  ring.className='result-ring '+(quizPassed?'pass':'fail');ring.textContent=pct+'%';
+  document.getElementById('result-title').textContent=quizPassed?'🎉 You Passed!':'Not Quite — Try Again';
+  document.getElementById('r-msg').textContent=quizPassed?`You scored ${pct}% and have earned your Module 1 certificate, certified by Nasir Mogul, CLF, LUTCF, MDRT.`:`You scored ${pct}%. You need 80% to pass. Review the lessons and try again.`;
+  document.getElementById('r-score').textContent=pct+'%';
+  document.getElementById('r-correct').textContent=quizScore;
+  document.getElementById('r-wrong').textContent=QUIZ.length-quizScore;
+  if(quizPassed){document.getElementById('cert-prev-name').textContent=userName;document.getElementById('cert-prev-block').style.display='block';document.getElementById('btn-view-cert').style.display='inline-block'}
+  document.getElementById('quiz-results').style.display='block';
+}
+
+function retryQuiz(){
+  document.getElementById('quiz-results').style.display='none';
+  document.getElementById('cert-prev-block').style.display='none';
+  document.getElementById('btn-view-cert').style.display='none';
+  document.getElementById('quiz-intro-panel').style.display='block';
+}
+
+function openCert(){
+  document.getElementById('cert-name').textContent=userName;
+  document.getElementById('cert-score-v').textContent=finalScore+'%';
+  document.getElementById('cert-date-v').textContent=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('cert-modal').classList.add('open');
+}
+function closeCert(){document.getElementById('cert-modal').classList.remove('open')}
+
+async function quickAsk(q){document.getElementById('ai-input').value=q;await sendAI()}
+
+async function sendAI(){
+  if(aiBusy)return;
+  const input=document.getElementById('ai-input');
+  const text=input.value.trim();if(!text)return;
+  aiBusy=true;document.getElementById('ai-send').disabled=true;input.value='';
+  const msgs=document.getElementById('ai-msgs');
+  const uW=document.createElement('div');uW.className='mwrap user';
+  uW.innerHTML=`<div class="mbubble user">${text}</div><div class="mmeta">${userName}</div>`;
+  msgs.appendChild(uW);msgs.scrollTop=msgs.scrollHeight;
+  const tW=document.createElement('div');tW.className='mwrap ai';tW.id='typing-w';
+  tW.innerHTML=`<div class="typing-ind"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;
+  msgs.appendChild(tW);msgs.scrollTop=msgs.scrollHeight;
+  aiHistory.push({role:'user',content:text});
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',max_tokens:1000,
+        system:`You are the CORE AI CSR Insurance Assistant — a real-time reference tool for insurance Customer Service Representatives at independent agencies. Curriculum co-developed with Nasir Mogul, CLF, LUTCF, MDRT — 34 years in independent insurance.
+
+Rules:
+- Answer in plain language a CSR can understand instantly or read to a client
+- When helpful, give an exact client-facing script prefixed with "What to say:"
+- Be concise: 3–6 sentences max unless a step-by-step process is needed
+- Never refuse relevant insurance questions
+- For coverage recommendations, remind the CSR to defer to the licensed agent
+- Short paragraphs only — no walls of text`,
+        messages:aiHistory
+      })
+    });
+    const data=await resp.json();
+    const reply=data.content?.map(b=>b.text||'').join('')||'Unable to reach the assistant.';
+    document.getElementById('typing-w').remove();
+    const aW=document.createElement('div');aW.className='mwrap ai';
+    aW.innerHTML=`<div class="mbubble ai">${reply.replace(/\n/g,'<br>')}</div><div class="mmeta">CORE AI Assistant</div>`;
+    msgs.appendChild(aW);msgs.scrollTop=msgs.scrollHeight;
+    aiHistory.push({role:'assistant',content:reply});
+  }catch(e){
+    document.getElementById('typing-w')?.remove();
+    const eW=document.createElement('div');eW.className='mwrap ai';
+    eW.innerHTML=`<div class="mbubble ai" style="color:var(--red)">Connection issue. Please try again.</div>`;
+    msgs.appendChild(eW);msgs.scrollTop=msgs.scrollHeight;
+  }
+  aiBusy=false;document.getElementById('ai-send').disabled=false;input.focus();
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCert()});
+
+async function loadTrendingFAQs(){
+  const loading=document.getElementById('faq-loading');
+  const grid=document.getElementById('faq-grid');
+  const err=document.getElementById('faq-error');
+  const btn=document.getElementById('faq-refresh-btn');
+  if(!loading||!grid)return;
+  loading.style.display='block';grid.style.display='none';err.style.display='none';
+  if(btn)btn.disabled=true;
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',max_tokens:1000,
+        tools:[{"type":"web_search_20250305","name":"web_search"}],
+        system:`You are a research assistant for an insurance agency training platform. Search the web for the most current, trending questions that clients are asking independent insurance agents and CSRs in 2026. Return ONLY a JSON array of 8 objects. No markdown, no preamble, no explanation — raw JSON only.
+
+Each object must have exactly these fields:
+- "category": short topic label (1-3 words, e.g. "Claims", "Coverage", "Billing")  
+- "question": the actual client question a CSR would hear on a live call (under 12 words)
+
+Example format:
+[{"category":"Claims","question":"How long does a claim take to process?"},...]
+
+Make questions specific and practical — things real clients call about today.`,
+        messages:[{role:'user',content:'Search for the most common and trending questions insurance clients are asking CSRs right now in 2026. Return exactly 8 as a JSON array.'}]
+      })
+    });
+    const data=await resp.json();
+    // Extract text from response (web_search tool may produce multiple content blocks)
+    // Web search returns mixed blocks: text, tool_use, tool_result
+    // The final answer is the LAST text block after all tool calls
+    const textBlocks=data.content?.filter(b=>b.type==='text'&&b.text&&b.text.trim().length>10)||[];
+    const text=textBlocks[textBlocks.length-1]?.text||'';
+    // Strip markdown fences and extract JSON array
+    const match=text.match(/\[\s*\{[\s\S]*\}\s*\]/);
+    if(!match)throw new Error('No JSON array found in response');
+    const faqs=JSON.parse(match[0]);
+    loading.style.display='none';
+    grid.innerHTML='';
+    faqs.forEach(faq=>{
+      const card=document.createElement('div');
+      card.style.cssText='background:var(--light);border:1px solid var(--border);border-radius:9px;padding:12px 14px;cursor:pointer;transition:border-color .15s';
+      card.onmouseover=()=>card.style.borderColor='var(--navy)';
+      card.onmouseout=()=>card.style.borderColor='var(--border)';
+      card.onclick=()=>ownerQuick(faq.question);
+      card.innerHTML=`<div style="font-size:10px;font-weight:700;color:var(--periwinkle);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">${faq.category}</div><div style="font-size:13px;font-weight:600;color:var(--dark)">${faq.question}</div>`;
+      grid.appendChild(card);
+    });
+    grid.style.display='grid';
+  }catch(e){
+    loading.style.display='none';err.style.display='block';
+    console.error('FAQ load error:',e); console.log('Raw API response:',JSON.stringify(data?.content?.map(b=>({type:b.type,text:b.text?.slice(0,200)}))));
+  }
+  if(btn)btn.disabled=false;
+}
+
+async function ownerQuick(q){
+  document.getElementById('owner-ai-input').value=q;
+  await ownerAsk();
+}
+
+async function ownerAsk(){
+  const input=document.getElementById('owner-ai-input');
+  const text=input.value.trim();
+  if(!text)return;
+  const btn=document.getElementById('owner-ai-btn');
+  const result=document.getElementById('owner-ai-result');
+  const loading=document.getElementById('owner-ai-loading');
+  btn.disabled=true;result.style.display='none';loading.style.display='block';
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',max_tokens:1000,
+        system:`You are the CORE AI CSR Insurance Assistant. Curriculum co-developed with Nasir Mogul, CLF, LUTCF, MDRT — 34 years in independent insurance. Answer in plain language a CSR can use on a live call. When helpful, provide an exact client-facing script prefixed with "What to say:". Be concise: 3–6 sentences max unless step-by-step is needed. Short paragraphs only.`,
+        messages:[{role:'user',content:text}]
+      })
+    });
+    const data=await resp.json();
+    const reply=data.content?.map(b=>b.text||'').join('')||'Unable to reach assistant.';
+    loading.style.display='none';
+    result.innerHTML=reply.replace(/\n/g,'<br>');
+    result.style.display='block';
+  }catch(e){
+    loading.style.display='none';
+    result.innerHTML='Connection issue. Please try again.';
+    result.style.display='block';
+  }
+  btn.disabled=false;
+}
+</script>
+</body>
+</html>
