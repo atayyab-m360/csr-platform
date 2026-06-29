@@ -272,9 +272,9 @@ footer img{height:15px;vertical-align:middle;margin-right:6px;opacity:.4}
     <h2>Sign In</h2>
     <div class="lsub2">Enter your agency credentials</div>
     <label class="field-label">Email</label>
-    <input type="email" id="login-email" placeholder="you@agencyname.com">
+    <input type="email" id="login-email" placeholder="test">
     <label class="field-label">Password</label>
-    <input type="password" id="login-pass" placeholder="••••••••">
+    <input type="password" id="login-pass" placeholder="test">
     <label class="field-label" style="margin-bottom:8px">I am a</label>
     <div class="role-row">
       <button class="role-pill active" onclick="setRole(this,'csr')">CSR Trainee</button>
@@ -676,9 +676,12 @@ let userName='Jane Doe',aiHistory=[],aiBusy=false;
 function setRole(btn,role){document.querySelectorAll('.role-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentRole=role}
 
 function doLogin(){
-  const email=document.getElementById('login-email').value.trim();
-  const pass=document.getElementById('login-pass').value.trim();
+  const email=document.getElementById('login-email').value.trim().toLowerCase();
+  const pass=document.getElementById('login-pass').value.trim().toLowerCase();
   if(!email||!pass){document.getElementById('login-err').style.display='block';return}
+  // Demo credentials
+  if(email==='test' && pass==='test'){currentRole='csr'}
+  if(email==='admin' && pass==='admin'){currentRole='owner'}
   document.getElementById('login-err').style.display='none';
   const local=email.split('@')[0];
   userName=local.split(/[._]/).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
